@@ -1,6 +1,6 @@
-import React from 'react';
-import {ResizableText} from "./ResizableText";
-import {EditableTextInput} from "./EditableTextInput";
+import React, {useCallback} from 'react';
+import { ResizableText } from "./ResizableText";
+import { EditableTextInput } from "./EditableTextInput";
 import Konva from "konva";
 import KonvaEventObject = Konva.KonvaEventObject;
 
@@ -11,30 +11,33 @@ interface EditableTextProps {
   y: number;
   isEditing: boolean;
   isTransforming: boolean;
+  isSelected: boolean;
   onToggleEdit: (e: KonvaEventObject<MouseEvent> | React.KeyboardEvent) => void;
-  onToggleTransform: (e: KonvaEventObject<MouseEvent>) => void;
+  onToggleTransform: (e:  KonvaEventObject<MouseEvent>) => void;
   onChange: (text: string) => void;
   onResize: (width: number, height: number) => void;
   text: string;
   width: number;
   height: number;
-  onDragEnd: (x: number, y: number) => void; // Assuming onDragEnd takes x and y as parameters, adjust if needed based on ResizableText implementation
+  onDragEnd: (x: number, y: number) => void;
+  onSelect: () => void;
 }
 
 function EditableText({
                         x,
                         y,
                         isEditing,
-                        isTransforming,
+                        isSelected,
                         onToggleEdit,
-                        onToggleTransform,
                         onChange,
                         onResize,
                         text,
                         width,
                         height,
-                        onDragEnd // Add onDragEnd prop
+                        onDragEnd,
+                        onSelect
                       }: EditableTextProps) {
+
   function handleEscapeKeys(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.keyCode === ESCAPE_KEY) {
       onToggleEdit(e);
@@ -44,6 +47,12 @@ function EditableText({
   function handleTextChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     onChange(e.currentTarget.value);
   }
+
+  const handleTextClick = useCallback((e: KonvaEventObject<MouseEvent>) => {
+    e.cancelBubble = true;
+    onSelect();
+  }, [onSelect]);
+
 
   if (isEditing) {
     return (
@@ -62,13 +71,13 @@ function EditableText({
     <ResizableText
       x={x}
       y={y}
-      isSelected={isTransforming}
-      onClick={onToggleTransform}
+      isSelected={isSelected}
+      onClick={handleTextClick} // Use handleTextClick to ensure onSelect is called
       onDoubleClick={onToggleEdit}
       onResize={onResize}
       text={text}
       width={width}
-      onDragEnd={onDragEnd} // Pass onDragEnd to ResizableText
+      onDragEnd={onDragEnd}
     />
   );
 }

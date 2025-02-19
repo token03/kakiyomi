@@ -16,9 +16,8 @@ function getStyle(width: number, height: number): CSSProperties {
   const baseStyle: CSSProperties = {
     width: `${width + 1}px`,
     height: `${height + 1}px`,
-    borderWidth: "1px",
-    borderColor: "black",
     padding: '0px',
+    border: '0',
     margin: "0px",
     background: "none",
     outline: "none",
