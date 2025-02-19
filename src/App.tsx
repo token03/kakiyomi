@@ -1,35 +1,46 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import '@mantine/core/styles.css';
+import '@mantine/tiptap/styles.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+import {AppShell, Burger, Group, MantineProvider, Button} from '@mantine/core';
+import {useDisclosure} from '@mantine/hooks';
+import Editor from './Editor.tsx';
+import {theme} from './theme';
+import MangaPagesList from "./components/MangaPagesList.tsx";
+import Toolbar from "./components/Toolbar.tsx";
+
+export default function App() {
+  const [navbarOpen, {toggle: toggleNavbar}] = useDisclosure();
+  const [asideOpen, {toggle: toggleAside}] = useDisclosure();
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <MantineProvider theme={theme}>
+      <AppShell
+        header={{height: 60}}
+        navbar={{width: 300, breakpoint: 'sm', collapsed: {mobile: !navbarOpen}}}
+        aside={{width: 300, breakpoint: 'sm', collapsed: {mobile: !asideOpen}}}
+        padding="md"
+      >
+        <AppShell.Header>
+          <Group h="100%" px="md" justify="space-between">
+            <Burger opened={navbarOpen} onClick={toggleNavbar} hiddenFrom="sm" size="sm"/>
+            <Button onClick={toggleAside} variant="subtle" size="sm">
+              Toggle Aside
+            </Button>
+          </Group>
+        </AppShell.Header>
 
-export default App
+        <AppShell.Navbar p="md">
+          <MangaPagesList/>
+        </AppShell.Navbar>
+
+        <AppShell.Aside p="md">
+          <Toolbar/>
+        </AppShell.Aside>
+
+        <AppShell.Main>
+          <Editor/>
+        </AppShell.Main>
+      </AppShell>
+    </MantineProvider>
+  );
+};
