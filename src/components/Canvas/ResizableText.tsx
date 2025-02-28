@@ -3,13 +3,10 @@ import {Text, Transformer} from "react-konva";
 import konva from "konva";
 import Konva from "konva";
 import KonvaEventObject = Konva.KonvaEventObject;
+import {TextBox} from "../../types/interfaces.tsx";
 
 interface ResizableTextProps {
-  x: number;
-  y: number;
-  text: string;
-  isSelected: boolean;
-  width: number;
+  textBox: TextBox;
   onResize: (width: number, height: number) => void;
   onClick: (e: KonvaEventObject<MouseEvent>) => void;
   onDoubleClick: (e: KonvaEventObject<MouseEvent>) => void;
@@ -17,11 +14,7 @@ interface ResizableTextProps {
 }
 
 export function ResizableText({
-                                x,
-                                y,
-                                text,
-                                isSelected,
-                                width,
+                                textBox,
                                 onResize,
                                 onClick,
                                 onDoubleClick,
@@ -31,11 +24,11 @@ export function ResizableText({
   const transformerRef = useRef<konva.Transformer>(null);
 
   useEffect(() => {
-    if (isSelected && transformerRef.current && textRef.current) {
+    if (textBox.isSelected && transformerRef.current && textRef.current) {
       transformerRef.current.nodes([textRef.current]);
       transformerRef.current.getLayer()?.batchDraw();
     }
-  }, [isSelected]);
+  }, [textBox.isSelected]);
 
   function handleResize() {
     if (textRef.current !== null) {
@@ -52,11 +45,11 @@ export function ResizableText({
 
   function handleDragEnd(e: KonvaEventObject<DragEvent>) {
     if (onDragEnd) {
-      onDragEnd(e.target.x(), e.target.y()); // Call onDragEnd with new x and y
+      onDragEnd(e.target.x(), e.target.y());
     }
   }
 
-  const transformer = isSelected ? (
+  const transformer = textBox.isSelected ? (
     <Transformer
       ref={transformerRef}
       rotateEnabled={false}
@@ -72,23 +65,24 @@ export function ResizableText({
   return (
     <>
       <Text
-        x={x}
-        y={y}
+        x={textBox.x}
+        y={textBox.y}
         draggable
         ref={textRef}
-        text={text}
-        fill="black"
+        text={textBox.text}
+        fill={textBox.fontColor}
         align="center"
-        fontFamily="sans-serif"
-        fontSize={24}
+        fontFamily={textBox.fontFamily}
+        fontSize={textBox.fontSize}
+        fontStyle={textBox.fontWeight}
         perfectDrawEnabled={false}
         onTransform={handleResize}
         onClick={onClick}
         onTap={onClick}
         onDblClick={onDoubleClick}
         onDblTap={onDoubleClick}
-        width={width}
-        onDragEnd={handleDragEnd} // Add onDragEnd handler to Text
+        width={textBox.width}
+        onDragEnd={handleDragEnd}
       />
       {transformer}
     </>

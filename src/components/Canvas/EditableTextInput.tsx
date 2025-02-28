@@ -1,37 +1,32 @@
 import {ChangeEvent, CSSProperties, KeyboardEvent} from "react";
 import {Html} from "./Html";
+import {TextBox} from "../../types/interfaces.tsx";
 
 interface EditableTextInputProps {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+  textBox: TextBox;
   value: string;
   onChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
   onKeyDown: (e: KeyboardEvent<HTMLTextAreaElement>) => void;
 }
 
-function getStyle(width: number, height: number): CSSProperties {
+function getStyle(textBox: TextBox): CSSProperties {
   const isFirefox = navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
   const baseStyle: CSSProperties = {
-    width: `${width + 1}px`,
-    height: `${height + 1}px`,
+    width: `${textBox.width + 1}px`,
+    height: `${textBox.height + 1}px`,
     padding: '0px',
     border: '0',
     margin: "0px",
     background: "none",
     outline: "none",
     resize: "none",
-    color: "black",
-    fontSize: "24px",
+    color: textBox.fontColor,
+    fontSize: `${textBox.fontSize}px`,
     lineHeight: "1",
     overflow: "hidden",
-    fontFamily: "sans-serif",
-    position: 'absolute',
-    top: '0px',
-    left: '0px',
+    fontFamily: textBox.fontFamily,
+    fontWeight: textBox.fontWeight,
     textAlign: 'center',
-    transform: `translate(${0}px, ${0}px)`,
   };
   if (isFirefox) {
     return baseStyle;
@@ -42,17 +37,14 @@ function getStyle(width: number, height: number): CSSProperties {
 }
 
 export function EditableTextInput({
-                                    x,
-                                    y,
-                                    width,
-                                    height,
+                                    textBox,
                                     value,
                                     onChange,
                                     onKeyDown,
                                   }: EditableTextInputProps) {
-  const style = getStyle(width, height);
+  const style = getStyle(textBox);
   return (
-    <Html groupProps={{x, y}} divProps={{style: {opacity: 1}}}>
+    <Html groupProps={{x: textBox.x, y: textBox.y}} divProps={{style: {opacity: 1}}}>
       <textarea
         value={value}
         onChange={onChange}

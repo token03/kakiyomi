@@ -3,37 +3,25 @@ import { ResizableText } from "./ResizableText";
 import { EditableTextInput } from "./EditableTextInput";
 import Konva from "konva";
 import KonvaEventObject = Konva.KonvaEventObject;
+import {TextBox} from "../../types/interfaces.tsx";
 
 const ESCAPE_KEY = 27;
 
 interface EditableTextProps {
-  x: number;
-  y: number;
-  isEditing: boolean;
-  isTransforming: boolean;
-  isSelected: boolean;
+  textBox: TextBox;
   onToggleEdit: (e: KonvaEventObject<MouseEvent> | React.KeyboardEvent) => void;
   onToggleTransform: (e:  KonvaEventObject<MouseEvent>) => void;
   onChange: (text: string) => void;
   onResize: (width: number, height: number) => void;
-  text: string;
-  width: number;
-  height: number;
   onDragEnd: (x: number, y: number) => void;
   onSelect: () => void;
 }
 
 function EditableText({
-                        x,
-                        y,
-                        isEditing,
-                        isSelected,
+                        textBox,
                         onToggleEdit,
                         onChange,
                         onResize,
-                        text,
-                        width,
-                        height,
                         onDragEnd,
                         onSelect
                       }: EditableTextProps) {
@@ -54,14 +42,11 @@ function EditableText({
   }, [onSelect]);
 
 
-  if (isEditing) {
+  if (textBox.isEditing) {
     return (
       <EditableTextInput
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        value={text}
+        textBox={textBox}
+        value={textBox.text}
         onChange={handleTextChange}
         onKeyDown={handleEscapeKeys}
       />
@@ -69,14 +54,10 @@ function EditableText({
   }
   return (
     <ResizableText
-      x={x}
-      y={y}
-      isSelected={isSelected}
-      onClick={handleTextClick} // Use handleTextClick to ensure onSelect is called
+      textBox={textBox}
+      onClick={handleTextClick}
       onDoubleClick={onToggleEdit}
       onResize={onResize}
-      text={text}
-      width={width}
       onDragEnd={onDragEnd}
     />
   );

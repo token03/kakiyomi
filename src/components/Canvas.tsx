@@ -1,3 +1,4 @@
+// Canvas.tsx
 import {Image, Layer, Stage} from 'react-konva';
 import {useCallback, useEffect, useRef, useState} from "react";
 import konva from 'konva';
@@ -5,13 +6,12 @@ import useImage from 'use-image';
 import TextLayer from "./Canvas/TextLayer";
 import PaintLayer, {PaintLayerRef} from "./Canvas/PaintLayer";
 import {Button, Grid, Stack, Slider, Text} from "@mantine/core";
-import {TextBox} from "../types/interfaces.tsx";
+import {TextBox, LineData} from "../types/interfaces.tsx";
 
 interface CanvasProps {
-  initialText?: string;
-  initialWidth?: number;
-  initialHeight?: number;
-  imageURL?: string;
+  imageURL: string;
+  initialTextBoxes?: TextBox[];
+  initialLines?: LineData[];
   stageWidth?: number;
   stageHeight?: number;
 }
@@ -19,38 +19,29 @@ interface CanvasProps {
 const DEFAULT_STAGE_SIZE = 800;
 
 export default function Canvas({
-                                 initialText = "Click to resize. Double click to edit.",
-                                 imageURL = 'https://i.redd.it/atxs52s7fnv21.jpg',
-                                 stageWidth = DEFAULT_STAGE_SIZE,
-                                 stageHeight = DEFAULT_STAGE_SIZE,
+                                 imageURL,
+                                 initialTextBoxes = [],
+                                 initialLines = [],
+                                 stageWidth: propStageWidth = DEFAULT_STAGE_SIZE,
+                                 stageHeight: propStageHeight = DEFAULT_STAGE_SIZE,
                                }: CanvasProps) {
   const sourceImageRef = useRef<konva.Layer>(null);
   const stageRef = useRef<konva.Stage>(null);
   const paintLayerRef = useRef<PaintLayerRef>(null);
 
-  const [textBoxes, setTextBoxes] = useState<TextBox[]>(() => {
-    const initialTextBox: TextBox = {
-      key: crypto.randomUUID(),
-      text: initialText,
-      x: 20,
-      y: 40,
-      width: 200,
-      height: 200,
-      isSelected: false,
-      isEditing: false,
-      isTransforming: false,
-    };
-    return [initialTextBox];
-  });
+  const [textBoxes, setTextBoxes] = useState<TextBox[]>(initialTextBoxes);
   const [selectedTextBoxKey, setSelectedTextBoxKey] = useState<string | null>(textBoxes[0]?.key || null);
   const [isPaintModeEnabled, setIsPaintModeEnabled] = useState(false);
   const [paintStrokeWidth, setPaintStrokeWidth] = useState(5);
+  const [paintLines, setPaintLines] = useState<LineData[]>(initialLines);
 
 
   const [image] = useImage(imageURL);
-  const [imageWidth, setImageWidth] = useState(stageWidth);
-  const [imageHeight, setImageHeight] = useState(stageHeight);
+  const [imageWidth, setImageWidth] = useState(propStageWidth);
+  const [imageHeight, setImageHeight] = useState(propStageHeight);
   const [imageX, setImageX] = useState(0);
+  const [stageWidth, setStageWidth] = useState(propStageWidth);
+  const [stageHeight, setStageHeight] = useState(propStageHeight);
 
 
   useEffect(() => {
@@ -59,22 +50,29 @@ export default function Canvas({
       const originalHeight = image.naturalHeight;
 
       if (originalWidth && originalHeight) {
-        const aspectRatio = originalWidth / originalHeight;
-        const newImageHeight = stageHeight;
-        const newImageWidth = newImageHeight * aspectRatio;
-
-        setImageWidth(newImageWidth);
-        setImageHeight(newImageHeight);
-
-        const x = (stageWidth - newImageWidth) / 2;
-        setImageX(x);
+        setStageWidth(originalWidth);
+        setStageHeight(originalHeight);
+        setImageWidth(originalWidth);
+        setImageHeight(originalHeight);
+        setImageX(0);
       } else {
-        setImageWidth(stageWidth);
-        setImageHeight(stageHeight);
+        setStageWidth(propStageWidth);
+        setStageHeight(propStageHeight);
+        setImageWidth(propStageWidth);
+        setImageHeight(propStageHeight);
         setImageX(0);
       }
     }
-  }, [image, stageWidth, stageHeight]);
+  }, [image, propStageWidth, propStageHeight]);
+
+  useEffect(() => {
+    setTextBoxes(initialTextBoxes);
+  }, [initialTextBoxes]);
+
+  useEffect(() => {
+    setPaintLines(initialLines);
+  }, [initialLines]);
+
 
   const deselectTextBoxes = useCallback(() => {
     setSelectedTextBoxKey(null);
@@ -121,18 +119,13 @@ export default function Canvas({
   }, []);
 
   const handleGetPaintData = () => {
-    if (paintLayerRef.current) {
-      const lines = paintLayerRef.current.getLines();
-      console.log("Paint Data:", lines);
-      downloadPaintLayer();
-      // Here you can send 'lines' to your backend
-    }
+    console.log("Paint Data:", paintLines);
+    downloadPaintLayer();
   };
 
   const handleClearPaintData = () => {
-    if (paintLayerRef.current) {
-      paintLayerRef.current.clearLines();
-    }
+    setPaintLines([]);
+    paintLayerRef.current?.clearLines();
   };
 
   const downloadPaintLayer = () => {
@@ -151,6 +144,10 @@ export default function Canvas({
     }
   }, [isPaintModeEnabled, deselectTextBoxes]);
 
+  const handlePaintLinesChange = useCallback((newLines: LineData[]) => {
+    setPaintLines(newLines);
+  }, []);
+
 
   return (
     <Stack>
@@ -164,8 +161,10 @@ export default function Canvas({
         style={{
           border: '1px solid #ccc',
           borderRadius: '8px',
-          width: '800px',
-          height: '800px',
+          maxWidth: '100%',
+          height:'auto',
+          display: 'flex',
+          justifyContent: 'center',
         }}
       >
         <Layer
@@ -182,7 +181,9 @@ export default function Canvas({
         <PaintLayer
           ref={paintLayerRef}
           isPaintModeEnabled={isPaintModeEnabled}
-          currentStrokeWidth={paintStrokeWidth} // Pass currentStrokeWidth
+          currentStrokeWidth={paintStrokeWidth}
+          lines={paintLines}
+          onLinesChange={handlePaintLinesChange}
         />
         <TextLayer
           textBoxes={textBoxes}
@@ -191,17 +192,17 @@ export default function Canvas({
         />
       </Stage>
       <Grid gutter={"sm"}>
-        <Grid.Col span={3}>
+        <Grid.Col span={2}>
           <Button fullWidth variant="light" color="black" onClick={handleGetPaintData}>
             Get Paint Data
           </Button>
         </Grid.Col>
-        <Grid.Col span={3}>
+        <Grid.Col span={2}>
           <Button fullWidth variant="light" color="black" onClick={handleClearPaintData}>
             Clear Paint Data
           </Button>
         </Grid.Col>
-        <Grid.Col span={3}>
+        <Grid.Col span={4}>
           <Slider
             label={<Text size="sm">Stroke Width: {paintStrokeWidth}</Text>}
             value={paintStrokeWidth}
@@ -217,7 +218,7 @@ export default function Canvas({
             ]}
           />
         </Grid.Col>
-        <Grid.Col span={3}>
+        <Grid.Col span={4}>
           <Button
             variant={isPaintModeEnabled ? "filled" : "light"}
             fullWidth
@@ -229,6 +230,5 @@ export default function Canvas({
         </Grid.Col>
       </Grid>
     </Stack>
-
   );
 }

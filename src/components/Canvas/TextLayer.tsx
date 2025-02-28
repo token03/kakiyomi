@@ -12,11 +12,10 @@ interface TextLayerProps {
 const TextLayer: React.FC<TextLayerProps> = ({textBoxes, setTextBoxes, onSelectionChange}) => {
   const [selectedTextBoxKey, setSelectedTextBoxKey] = useState<string | null>(null);
 
-  // Initialize selectedTextBoxKey from props if textBoxes are available and no key is selected yet
   React.useEffect(() => {
     if (textBoxes.length > 0 && selectedTextBoxKey === null) {
       setSelectedTextBoxKey(textBoxes[0].key);
-      onSelectionChange(textBoxes[0].key); // Inform parent about initial selection
+      onSelectionChange(textBoxes[0].key);
     }
   }, [textBoxes, selectedTextBoxKey, onSelectionChange]);
 
@@ -25,28 +24,20 @@ const TextLayer: React.FC<TextLayerProps> = ({textBoxes, setTextBoxes, onSelecti
     setSelectedTextBoxKey(key);
     onSelectionChange(key);
     setTextBoxes(prevTextBoxes =>
-      prevTextBoxes.map(textBox => {
-        const isSelected = textBox.key === key;
-        return {
+      prevTextBoxes.map(textBox => ({
           ...textBox,
-          isSelected: isSelected,
-          isEditing: isSelected ? textBox.isEditing : false,
-          isTransforming: isSelected ? textBox.isTransforming : false,
-        };
-      })
-    );
+          isSelected: textBox.key === key,
+          isEditing: textBox.key === key ? textBox.isEditing : false,
+          isTransforming: textBox.key === key ? textBox.isTransforming : false,
+        })
+      ));
   }, [setTextBoxes, onSelectionChange]);
 
 
   const toggleEditMode = useCallback((key: string) => {
     setTextBoxes(prevTextBoxes =>
       prevTextBoxes.map(textBox =>
-        textBox.key === key ? {
-          ...textBox,
-          isEditing: !textBox.isEditing,
-          isTransforming: false,
-          isSelected: true
-        } : textBox
+        textBox.key === key ? {...textBox, isEditing: !textBox.isEditing, isTransforming: false, isSelected: true } : textBox
       )
     );
     setSelectedTextBoxKey(key);
@@ -56,12 +47,7 @@ const TextLayer: React.FC<TextLayerProps> = ({textBoxes, setTextBoxes, onSelecti
   const toggleTransformMode = useCallback((key: string) => {
     setTextBoxes(prevTextBoxes =>
       prevTextBoxes.map(textBox =>
-        textBox.key === key ? {
-          ...textBox,
-          isTransforming: !textBox.isTransforming,
-          isEditing: false,
-          isSelected: true
-        } : textBox
+        textBox.key === key ? {...textBox, isTransforming: !textBox.isTransforming, isEditing: false, isSelected: true} : textBox
       )
     );
     setSelectedTextBoxKey(key);
@@ -98,14 +84,7 @@ const TextLayer: React.FC<TextLayerProps> = ({textBoxes, setTextBoxes, onSelecti
       {textBoxes.map((textBox) => (
         <EditableText
           key={textBox.key}
-          x={textBox.x}
-          y={textBox.y}
-          text={textBox.text}
-          width={textBox.width}
-          height={textBox.height}
-          isEditing={textBox.isEditing}
-          isTransforming={textBox.isTransforming}
-          isSelected={textBox.isSelected}
+          textBox={textBox}
           onToggleEdit={() => toggleEditMode(textBox.key)}
           onToggleTransform={() => toggleTransformMode(textBox.key)}
           onChange={(newText) => handleTextChange(textBox.key, newText)}
