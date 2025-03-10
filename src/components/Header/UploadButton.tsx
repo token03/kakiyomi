@@ -1,9 +1,9 @@
 // components/Header/UploadButton.tsx
 import {Button, FileButton, Group} from '@mantine/core';
-import {usePageContext} from "../../contexts/PageContext";
+import { usePageStore } from "../../store/pageStore";
 
 export default function UploadButton() {
-  const { addPage } = usePageContext();
+  const addPage = usePageStore(state => state.addPage);
 
   const handleImageUpload = async (uploadedFiles: File[]) => {
     if (!uploadedFiles || uploadedFiles.length === 0) {
@@ -21,7 +21,7 @@ export default function UploadButton() {
       segmentData: [],
       lines: [],
     };
-    addPage(newPage);
+    addPage(newPage.sourceImage);
   };
 
 
