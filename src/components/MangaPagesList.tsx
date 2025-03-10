@@ -1,5 +1,5 @@
 import {Stack, Container, Paper, Image, Text} from '@mantine/core';
-import { usePageContext } from "../contexts/PageContext";
+import { usePageStore } from "../store/pageStore";
 import React from "react";
 
 interface PageEntryProps {
@@ -7,7 +7,8 @@ interface PageEntryProps {
 }
 
 const PageEntry: React.FC<PageEntryProps> = ({ page }) => {
-  const { selectPage, selectedPageKey } = usePageContext();
+  const selectPage = usePageStore(state => state.selectPage);
+  const selectedPageKey = usePageStore(state => state.selectedPageKey);
   const isSelected = page.key === selectedPageKey;
 
   return (
@@ -31,7 +32,7 @@ const PageEntry: React.FC<PageEntryProps> = ({ page }) => {
 
 
 export default function MangaPagesList() {
-  const { pages } = usePageContext();
+  const pages = usePageStore(state => state.pages);
 
   return (
     <Container
