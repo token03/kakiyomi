@@ -1,6 +1,6 @@
-import {ChangeEvent, CSSProperties, KeyboardEvent} from "react";
-import {Html} from "./Html";
-import {TextBox} from "../../types/interfaces.tsx";
+import { ChangeEvent, CSSProperties, KeyboardEvent } from "react";
+import { Html } from "./Html";
+import { TextBox } from "../../types/interfaces.tsx";
 
 interface EditableTextInputProps {
   textBox: TextBox;
@@ -14,8 +14,8 @@ function getStyle(textBox: TextBox): CSSProperties {
   const baseStyle: CSSProperties = {
     width: `${textBox.width + 1}px`,
     height: `${textBox.height + 1}px`,
-    padding: '0px',
-    border: '0',
+    padding: "0px",
+    border: "0",
     margin: "0px",
     background: "none",
     outline: "none",
@@ -26,7 +26,7 @@ function getStyle(textBox: TextBox): CSSProperties {
     overflow: "hidden",
     fontFamily: textBox.fontFamily,
     fontWeight: textBox.fontWeight,
-    textAlign: 'center',
+    textAlign: "center",
   };
   if (isFirefox) {
     return baseStyle;
@@ -37,14 +37,17 @@ function getStyle(textBox: TextBox): CSSProperties {
 }
 
 export function EditableTextInput({
-                                    textBox,
-                                    value,
-                                    onChange,
-                                    onKeyDown,
-                                  }: EditableTextInputProps) {
+  textBox,
+  value,
+  onChange,
+  onKeyDown,
+}: EditableTextInputProps) {
   const style = getStyle(textBox);
   return (
-    <Html groupProps={{x: textBox.x, y: textBox.y}} divProps={{style: {opacity: 1}}}>
+    <Html
+      groupProps={{ x: textBox.x, y: textBox.y }}
+      divProps={{ style: { opacity: 1 } }}
+    >
       <textarea
         value={value}
         onChange={onChange}

@@ -1,9 +1,9 @@
-import {useRef, useEffect} from "react";
-import {Text, Transformer} from "react-konva";
+import { useRef, useEffect } from "react";
+import { Text, Transformer } from "react-konva";
 import konva from "konva";
 import Konva from "konva";
 import KonvaEventObject = Konva.KonvaEventObject;
-import {TextBox} from "../../types/interfaces.tsx";
+import { TextBox } from "../../types/interfaces.tsx";
 
 interface ResizableTextProps {
   textBox: TextBox;
@@ -14,12 +14,12 @@ interface ResizableTextProps {
 }
 
 export function ResizableText({
-                                textBox,
-                                onResize,
-                                onClick,
-                                onDoubleClick,
-                                onDragEnd
-                              }: ResizableTextProps) {
+  textBox,
+  onResize,
+  onClick,
+  onDoubleClick,
+  onDragEnd,
+}: ResizableTextProps) {
   const textRef = useRef<konva.Text>(null);
   const transformerRef = useRef<konva.Transformer>(null);
 
@@ -37,7 +37,7 @@ export function ResizableText({
       const newHeight = textNode.height() * textNode.scaleY();
       textNode.setAttrs({
         width: newWidth,
-        scaleX: 1
+        scaleX: 1,
       });
       onResize(newWidth, newHeight);
     }

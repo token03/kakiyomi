@@ -1,16 +1,16 @@
-import React, {useCallback} from 'react';
+import React, { useCallback } from "react";
 import { ResizableText } from "./ResizableText";
 import { EditableTextInput } from "./EditableTextInput";
 import Konva from "konva";
 import KonvaEventObject = Konva.KonvaEventObject;
-import {TextBox} from "../../types/interfaces.tsx";
+import { TextBox } from "../../types/interfaces.tsx";
 
 const ESCAPE_KEY = 27;
 
 interface EditableTextProps {
   textBox: TextBox;
   onToggleEdit: (e: KonvaEventObject<MouseEvent> | React.KeyboardEvent) => void;
-  onToggleTransform: (e:  KonvaEventObject<MouseEvent>) => void;
+  onToggleTransform: (e: KonvaEventObject<MouseEvent>) => void;
   onChange: (text: string) => void;
   onResize: (width: number, height: number) => void;
   onDragEnd: (x: number, y: number) => void;
@@ -18,14 +18,13 @@ interface EditableTextProps {
 }
 
 function EditableText({
-                        textBox,
-                        onToggleEdit,
-                        onChange,
-                        onResize,
-                        onDragEnd,
-                        onSelect
-                      }: EditableTextProps) {
-
+  textBox,
+  onToggleEdit,
+  onChange,
+  onResize,
+  onDragEnd,
+  onSelect,
+}: EditableTextProps) {
   function handleEscapeKeys(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.keyCode === ESCAPE_KEY) {
       onToggleEdit(e);
@@ -36,11 +35,13 @@ function EditableText({
     onChange(e.currentTarget.value);
   }
 
-  const handleTextClick = useCallback((e: KonvaEventObject<MouseEvent>) => {
-    e.cancelBubble = true;
-    onSelect();
-  }, [onSelect]);
-
+  const handleTextClick = useCallback(
+    (e: KonvaEventObject<MouseEvent>) => {
+      e.cancelBubble = true;
+      onSelect();
+    },
+    [onSelect],
+  );
 
   if (textBox.isEditing) {
     return (

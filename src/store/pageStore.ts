@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { v4 as uuidv4 } from "uuid";
 import { Page, TextBox } from "../types/interfaces";
 
-// Define initial text boxes
 const initialTextBoxes: TextBox[] = [
   {
     key: uuidv4(),
