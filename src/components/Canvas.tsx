@@ -1,12 +1,12 @@
 // Canvas.tsx
-import {Image, Layer, Stage} from 'react-konva';
-import {useCallback, useEffect, useRef, useState} from "react";
-import konva from 'konva';
-import useImage from 'use-image';
+import { Image, Layer, Stage } from "react-konva";
+import { useCallback, useEffect, useRef, useState } from "react";
+import konva from "konva";
+import useImage from "use-image";
 import TextLayer from "./Canvas/TextLayer";
-import PaintLayer, {PaintLayerRef} from "./Canvas/PaintLayer";
-import {Button, Grid, Stack, Slider, Text} from "@mantine/core";
-import {TextBox, LineData} from "../types/interfaces.tsx";
+import PaintLayer, { PaintLayerRef } from "./Canvas/PaintLayer";
+import { Button, Grid, Stack, Slider, Text } from "@mantine/core";
+import { TextBox, LineData } from "../types/interfaces.tsx";
 
 interface CanvasProps {
   imageURL: string;
@@ -19,22 +19,23 @@ interface CanvasProps {
 const DEFAULT_STAGE_SIZE = 800;
 
 export default function Canvas({
-                                 imageURL,
-                                 initialTextBoxes = [],
-                                 initialLines = [],
-                                 stageWidth: propStageWidth = DEFAULT_STAGE_SIZE,
-                                 stageHeight: propStageHeight = DEFAULT_STAGE_SIZE,
-                               }: CanvasProps) {
+  imageURL,
+  initialTextBoxes = [],
+  initialLines = [],
+  stageWidth: propStageWidth = DEFAULT_STAGE_SIZE,
+  stageHeight: propStageHeight = DEFAULT_STAGE_SIZE,
+}: CanvasProps) {
   const sourceImageRef = useRef<konva.Layer>(null);
   const stageRef = useRef<konva.Stage>(null);
   const paintLayerRef = useRef<PaintLayerRef>(null);
 
   const [textBoxes, setTextBoxes] = useState<TextBox[]>(initialTextBoxes);
-  const [selectedTextBoxKey, setSelectedTextBoxKey] = useState<string | null>(textBoxes[0]?.key || null);
+  const [selectedTextBoxKey, setSelectedTextBoxKey] = useState<string | null>(
+    textBoxes[0]?.key || null,
+  );
   const [isPaintModeEnabled, setIsPaintModeEnabled] = useState(false);
   const [paintStrokeWidth, setPaintStrokeWidth] = useState(5);
   const [paintLines, setPaintLines] = useState<LineData[]>(initialLines);
-
 
   const [image] = useImage(imageURL);
   const [imageWidth, setImageWidth] = useState(propStageWidth);
@@ -42,7 +43,6 @@ export default function Canvas({
   const [imageX, setImageX] = useState(0);
   const [stageWidth, setStageWidth] = useState(propStageWidth);
   const [stageHeight, setStageHeight] = useState(propStageHeight);
-
 
   useEffect(() => {
     if (image) {
@@ -73,46 +73,52 @@ export default function Canvas({
     setPaintLines(initialLines);
   }, [initialLines]);
 
-
   const deselectTextBoxes = useCallback(() => {
     setSelectedTextBoxKey(null);
-    setTextBoxes(prevTextBoxes =>
-      prevTextBoxes.map(textBox => ({
+    setTextBoxes((prevTextBoxes) =>
+      prevTextBoxes.map((textBox) => ({
         ...textBox,
         isSelected: false,
         isEditing: false,
         isTransforming: false,
-      }))
+      })),
     );
   }, [setTextBoxes, setSelectedTextBoxKey]);
 
+  const handleStageMouseDown = useCallback(
+    (e: konva.KonvaEventObject<MouseEvent>) => {
+      if (isPaintModeEnabled) {
+        paintLayerRef.current?.handleMouseDown(e);
+        return;
+      }
 
-  const handleStageMouseDown = useCallback((e: konva.KonvaEventObject<MouseEvent>) => {
-    if (isPaintModeEnabled) {
-      paintLayerRef.current?.handleMouseDown(e);
-      return;
-    }
+      const clickedOnEmpty = e.target === e.target.getStage();
+      const clickedOnImage = e.target.getLayer() === sourceImageRef.current;
 
-    const clickedOnEmpty = e.target === e.target.getStage();
-    const clickedOnImage = e.target.getLayer() === sourceImageRef.current;
+      if (clickedOnEmpty || clickedOnImage) {
+        deselectTextBoxes();
+      }
+    },
+    [deselectTextBoxes, isPaintModeEnabled],
+  );
 
-    if (clickedOnEmpty || clickedOnImage) {
-      deselectTextBoxes();
-    }
-  }, [deselectTextBoxes, isPaintModeEnabled]);
+  const handleStageMouseMove = useCallback(
+    (e: konva.KonvaEventObject<MouseEvent>) => {
+      if (isPaintModeEnabled) {
+        paintLayerRef.current?.handleMouseMove(e);
+      }
+    },
+    [isPaintModeEnabled],
+  );
 
-  const handleStageMouseMove = useCallback((e: konva.KonvaEventObject<MouseEvent>) => {
-    if (isPaintModeEnabled) {
-      paintLayerRef.current?.handleMouseMove(e);
-    }
-  }, [isPaintModeEnabled]);
-
-  const handleStageMouseUp = useCallback((e: konva.KonvaEventObject<MouseEvent>) => {
-    if (isPaintModeEnabled) {
-      paintLayerRef.current?.handleMouseUp(e);
-    }
-  }, [isPaintModeEnabled]);
-
+  const handleStageMouseUp = useCallback(
+    (e: konva.KonvaEventObject<MouseEvent>) => {
+      if (isPaintModeEnabled) {
+        paintLayerRef.current?.handleMouseUp(e);
+      }
+    },
+    [isPaintModeEnabled],
+  );
 
   const handleTextLayerSelectionChange = useCallback((key: string | null) => {
     setSelectedTextBoxKey(key);
@@ -136,7 +142,7 @@ export default function Canvas({
       link.download = "mask.png";
       link.click();
     }
-  }
+  };
 
   useEffect(() => {
     if (isPaintModeEnabled) {
@@ -148,7 +154,6 @@ export default function Canvas({
     setPaintLines(newLines);
   }, []);
 
-
   return (
     <Stack>
       <Stage
@@ -159,17 +164,15 @@ export default function Canvas({
         onMouseUp={handleStageMouseUp}
         ref={stageRef}
         style={{
-          border: '1px solid #ccc',
-          borderRadius: '8px',
-          maxWidth: '100%',
-          height:'auto',
-          display: 'flex',
-          justifyContent: 'center',
+          border: "1px solid #ccc",
+          borderRadius: "8px",
+          maxWidth: "100%",
+          height: "auto",
+          display: "flex",
+          justifyContent: "center",
         }}
       >
-        <Layer
-          ref={sourceImageRef}
-        >
+        <Layer ref={sourceImageRef}>
           <Image
             image={image}
             width={imageWidth}
@@ -193,12 +196,22 @@ export default function Canvas({
       </Stage>
       <Grid gutter={"sm"}>
         <Grid.Col span={2}>
-          <Button fullWidth variant="light" color="black" onClick={handleGetPaintData}>
+          <Button
+            fullWidth
+            variant="light"
+            color="black"
+            onClick={handleGetPaintData}
+          >
             Get Paint Data
           </Button>
         </Grid.Col>
         <Grid.Col span={2}>
-          <Button fullWidth variant="light" color="black" onClick={handleClearPaintData}>
+          <Button
+            fullWidth
+            variant="light"
+            color="black"
+            onClick={handleClearPaintData}
+          >
             Clear Paint Data
           </Button>
         </Grid.Col>
@@ -212,9 +225,9 @@ export default function Canvas({
             min={5}
             max={50}
             marks={[
-              { value: 0, label: '0' },
-              { value: 25, label: '25' },
-              { value: 50, label: '50' },
+              { value: 0, label: "0" },
+              { value: 25, label: "25" },
+              { value: 50, label: "50" },
             ]}
           />
         </Grid.Col>
