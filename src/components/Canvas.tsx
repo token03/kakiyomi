@@ -43,6 +43,7 @@ export default function Canvas({
   const [imageX, setImageX] = useState(0);
   const [stageWidth, setStageWidth] = useState(propStageWidth);
   const [stageHeight, setStageHeight] = useState(propStageHeight);
+  const [aspectRatio, setAspectRatio] = useState(1);
 
   useEffect(() => {
     if (image) {
@@ -54,12 +55,14 @@ export default function Canvas({
         setStageHeight(originalHeight);
         setImageWidth(originalWidth);
         setImageHeight(originalHeight);
+        setAspectRatio(originalWidth / originalHeight);
         setImageX(0);
       } else {
         setStageWidth(propStageWidth);
         setStageHeight(propStageHeight);
         setImageWidth(propStageWidth);
         setImageHeight(propStageHeight);
+        setAspectRatio(propStageWidth / propStageHeight);
         setImageX(0);
       }
     }

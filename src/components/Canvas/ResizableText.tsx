@@ -1,6 +1,5 @@
 import { useRef, useEffect } from "react";
 import { Text, Transformer } from "react-konva";
-import konva from "konva";
 import Konva from "konva";
 import KonvaEventObject = Konva.KonvaEventObject;
 import { TextBox } from "../../types/interfaces.tsx";
@@ -20,8 +19,8 @@ export function ResizableText({
   onDoubleClick,
   onDragEnd,
 }: ResizableTextProps) {
-  const textRef = useRef<konva.Text>(null);
-  const transformerRef = useRef<konva.Transformer>(null);
+  const textRef = useRef<Konva.Text>(null);
+  const transformerRef = useRef<Konva.Transformer>(null);
 
   useEffect(() => {
     if (textBox.isSelected && transformerRef.current && textRef.current) {
@@ -34,7 +33,7 @@ export function ResizableText({
     if (textRef.current !== null) {
       const textNode = textRef.current;
       const newWidth = textNode.width() * textNode.scaleX();
-      const newHeight = textNode.height() * textNode.scaleY();
+      const newHeight = textNode.height(); // Use actual height, scaleY remains 1
       textNode.setAttrs({
         width: newWidth,
         scaleX: 1,
@@ -44,9 +43,7 @@ export function ResizableText({
   }
 
   function handleDragEnd(e: KonvaEventObject<DragEvent>) {
-    if (onDragEnd) {
-      onDragEnd(e.target.x(), e.target.y());
-    }
+    onDragEnd(e.target.x(), e.target.y());
   }
 
   const transformer = textBox.isSelected ? (

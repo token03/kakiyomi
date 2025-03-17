@@ -1,13 +1,13 @@
-import Konva from 'konva';
-import React, {HTMLAttributes, PropsWithChildren} from 'react';
-import ReactDOM from 'react-dom/client';
-import {Group} from 'react-konva';
-import {useContextBridge} from 'its-fine';
-import {useEvent} from "../../utils/canvasUtils.ts";
+import Konva from "konva";
+import React, { HTMLAttributes, PropsWithChildren } from "react";
+import ReactDOM from "react-dom/client";
+import { Group } from "react-konva";
+import { useContextBridge } from "its-fine";
+import { useEvent } from "../../utils/canvasUtils.ts";
 
 const needForceStyle = (el: HTMLDivElement) => {
   const pos = window.getComputedStyle(el).position;
-  const ok = pos === 'absolute' || pos === 'relative';
+  const ok = pos === "absolute" || pos === "relative";
   return !ok;
 };
 
@@ -28,18 +28,17 @@ export type HtmlProps = PropsWithChildren<{
   transformFunc?: (attrs: HtmlTransformAttrs) => HtmlTransformAttrs;
 }>;
 
-
 export const Html = ({
-                       children,
-                       groupProps,
-                       divProps,
-                       transform,
-                       transformFunc,
-                     }: HtmlProps) => {
+  children,
+  groupProps,
+  divProps,
+  transform,
+  transformFunc,
+}: HtmlProps) => {
   const Bridge = useContextBridge();
   const groupRef = React.useRef<Konva.Group>(null);
 
-  const [div] = React.useState(() => document.createElement('div'));
+  const [div] = React.useState(() => document.createElement("div"));
   const root = React.useMemo(() => ReactDOM.createRoot(div), [div]);
 
   const shouldTransform = transform ?? true;
@@ -51,21 +50,21 @@ export const Html = ({
       if (transformFunc) {
         attrs = transformFunc(attrs);
       }
-      div.style.position = 'absolute';
-      div.style.zIndex = '10';
-      div.style.top = '0px';
-      div.style.left = '0px';
+      div.style.position = "absolute";
+      div.style.zIndex = "10";
+      div.style.top = "0px";
+      div.style.left = "0px";
       div.style.transform = `translate(${attrs.x}px, ${attrs.y}px) rotate(${attrs.rotation}deg) scaleX(${attrs.scaleX}) scaleY(${attrs.scaleY})`;
-      div.style.transformOrigin = 'top left';
+      div.style.transformOrigin = "top left";
     } else {
-      div.style.position = '';
-      div.style.zIndex = '';
-      div.style.top = '';
-      div.style.left = '';
+      div.style.position = "";
+      div.style.zIndex = "";
+      div.style.top = "";
+      div.style.left = "";
       div.style.transform = ``;
-      div.style.transformOrigin = '';
+      div.style.transformOrigin = "";
     }
-    const {style, ...restProps} = divProps || {};
+    const { style, ...restProps } = divProps || {};
     // apply deep nesting, because direct assign of "divProps" will overwrite styles above
     Object.assign(div.style, style);
     Object.assign(div, restProps);
@@ -83,20 +82,20 @@ export const Html = ({
     parent.appendChild(div);
 
     if (shouldTransform && needForceStyle(parent)) {
-      parent.style.position = 'relative';
+      parent.style.position = "relative";
     }
 
-    group.on('absoluteTransformChange', handleTransform);
+    group.on("absoluteTransformChange", handleTransform);
     handleTransform();
     return () => {
-      group.off('absoluteTransformChange', handleTransform);
+      group.off("absoluteTransformChange", handleTransform);
       div.parentNode?.removeChild(div);
     };
-  }, [shouldTransform]);
+  }, [div, handleTransform, shouldTransform]);
 
   React.useLayoutEffect(() => {
     handleTransform();
-  }, [divProps, transformFunc]);
+  }, [divProps, handleTransform, transformFunc]);
 
   React.useLayoutEffect(() => {
     root.render(<Bridge>{children}</Bridge>);
@@ -111,7 +110,7 @@ export const Html = ({
         root.unmount();
       });
     };
-  }, []);
+  }, [root]);
 
   return <Group ref={groupRef} {...groupProps} />;
 };

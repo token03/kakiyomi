@@ -6,6 +6,7 @@ import KonvaEventObject = Konva.KonvaEventObject;
 import { TextBox } from "../../types/interfaces.tsx";
 
 const ESCAPE_KEY = 27;
+const ENTER_KEY = 13;
 
 interface EditableTextProps {
   textBox: TextBox;
@@ -26,7 +27,7 @@ function EditableText({
   onSelect,
 }: EditableTextProps) {
   function handleEscapeKeys(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.keyCode === ESCAPE_KEY) {
+    if (e.keyCode === ESCAPE_KEY || (e.keyCode === ENTER_KEY && !e.shiftKey)) {
       onToggleEdit(e);
     }
   }
